@@ -32,6 +32,7 @@ export default function Player({
 }: JSX.IntrinsicElements["group"] & PlayerProps) {
   const leftTranslation = useMemo(() => new THREE.Vector3(), []);
   const rightTranslation = useMemo(() => new THREE.Vector3(), []);
+  const firingPosition = useMemo(() => new THREE.Vector3(), []);
   const getKeys = useKeyboardControls()[1];
   const { nodes, materials } = useGLTF(
     "/models/Johnny-transformed.glb"
@@ -51,14 +52,14 @@ export default function Player({
       );
 
       if (left) {
-        current.setNextKinematicTranslation(negativeAmount);
+        current.setNextKinematicTranslation(amount);
       }
       if (right) {
-        current.setNextKinematicTranslation(amount);
+        current.setNextKinematicTranslation(negativeAmount);
       }
       if (space) {
         const position = ref.current.translation();
-        fire(new THREE.Vector3(position.x, position.y, position.z));
+        fire(firingPosition.set(position.x, position.y, position.z));
       }
     }
   });

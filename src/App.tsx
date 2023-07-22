@@ -5,6 +5,7 @@ import Game from "./components/Game";
 import CameraRig from "./components/CameraRig";
 import { KeyboardControls } from "@react-three/drei";
 import { Physics } from "@react-three/rapier";
+import * as THREE from "three";
 
 export default function App(props: any) {
   return (
@@ -16,9 +17,14 @@ export default function App(props: any) {
           { name: "space", keys: ["Space"] },
         ]}
       >
-        <Canvas camera={{ position: [0, 10, -20] }}>
-          <Environment files="/images/nebula.hdr" background />
-          <CameraRig />
+        <Canvas
+          camera={{
+            position: [0, 10, -20],
+          }}
+        >
+          {/* <Environment files="/images/nebula.hdr" background /> */}
+          <ambientLight args={["white", 1]} />
+          {/* <CameraRig /> */}
           <Physics debug>
             <Game />
           </Physics>
