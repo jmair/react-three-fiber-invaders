@@ -39,4 +39,4 @@ export function Napoleon(props: JSX.IntrinsicElements["group"]) {
   );
 }
 
-useGLTF.preload("/Napoleon-transformed.glb");
+useGLTF.preload("/models/Napoleon-transformed.glb");

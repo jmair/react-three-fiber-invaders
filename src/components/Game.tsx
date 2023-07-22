@@ -1,13 +1,13 @@
 import { useMemo, useRef } from "react";
 import Player from "./Player";
 import { Vector3, Ray, Mesh } from "three";
-import Dennis from "./Dennis";
 import Armada from "./Armada";
 
 const Game = () => {
   const alienRef = useRef<Mesh>(null);
   const rayRef = useRef<THREE.Raycaster>(null);
   const upVector = useMemo(() => new Vector3(0, 1, 0), []);
+  const playerRef = useRef<Mesh>(null);
 
   const fire = (position: Vector3) => {
     if (alienRef.current) {
@@ -16,7 +16,6 @@ const Game = () => {
         [alienRef.current],
         false
       );
-      console.log(result);
       if (result?.length) {
         console.log(result);
         if (alienRef.current === result[0].object) {

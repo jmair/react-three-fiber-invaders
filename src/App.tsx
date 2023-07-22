@@ -6,6 +6,7 @@ import CameraRig from "./components/CameraRig";
 import { KeyboardControls } from "@react-three/drei";
 import { Physics } from "@react-three/rapier";
 import * as THREE from "three";
+import { Perf } from "r3f-perf";
 
 export default function App(props: any) {
   return (
@@ -22,6 +23,7 @@ export default function App(props: any) {
             position: [0, 10, -20],
           }}
         >
+          <Perf />
           {/* <Environment files="/images/nebula.hdr" background /> */}
           <ambientLight args={["white", 1]} />
           {/* <CameraRig /> */}

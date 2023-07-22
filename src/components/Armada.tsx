@@ -11,7 +11,7 @@ const Armada = (
 
   const xVelocity = 2;
   const groupRef = useRef<THREE.Group>(null);
-  const xStride = 50;
+  const xStride = 25;
   const yStride = -0.25;
 
   useFrame((state, delta) => {
