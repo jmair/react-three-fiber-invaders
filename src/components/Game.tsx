@@ -2,6 +2,7 @@ import { useMemo, useRef } from "react";
 import Player from "./Player";
 import { Vector3, Ray, Mesh } from "three";
 import Dennis from "./Dennis";
+import Armada from "./Armada";
 
 const Game = () => {
   const alienRef = useRef<Mesh>(null);
@@ -15,7 +16,9 @@ const Game = () => {
         [alienRef.current],
         false
       );
+      console.log(result);
       if (result?.length) {
+        console.log(result);
         if (alienRef.current === result[0].object) {
           if (alienRef.current.parent) alienRef.current.parent.visible = false;
         }
@@ -26,7 +29,7 @@ const Game = () => {
   return (
     <>
       <raycaster ref={rayRef} ray={new Ray(new Vector3(0, 0, 0), upVector)} />
-      <Dennis ref={alienRef} />
+      <Armada ref={alienRef} />
       <Player fire={fire} />
     </>
   );
