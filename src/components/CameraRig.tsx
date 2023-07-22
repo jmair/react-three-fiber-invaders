@@ -5,7 +5,7 @@ interface RigProps {
   mouseAmount?: number;
 }
 
-const Rig = ({ mouseAmount = 20 }: RigProps) => {
+const Rig = ({ mouseAmount = 5 }: RigProps) => {
   const { camera, mouse } = useThree();
   const vec = new Vector3();
 
@@ -14,7 +14,7 @@ const Rig = ({ mouseAmount = 20 }: RigProps) => {
       vec.set(mouse.x * mouseAmount, mouse.y * mouseAmount, camera.position.z),
       1
     );
-    camera.lookAt(0, 0, 0);
+    camera.lookAt(0, 5, 0);
   });
 };
 
