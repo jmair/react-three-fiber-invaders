@@ -1,9 +1,11 @@
 import * as THREE from "three";
 import React, { useMemo, useRef, useState } from "react";
 import { useFrame } from "@react-three/fiber";
-import Dennis from "./Dennis";
 import { useKeyboardControls } from "@react-three/drei";
-import { Napoleon } from "./Napoleon";
+import Napoleon from "./Napoleon";
+import Dennis from "./Dennis";
+import Jimmy from "./Jimmy";
+import Bruce from "./Bruce";
 
 interface ArmadaProps {
   playerRef: any;
@@ -19,8 +21,7 @@ const Armada = ({
   const firingPosition = useMemo(() => new THREE.Vector3(), []);
   const groupRef = useRef<THREE.Group>(null!);
   const rayRef = useRef<THREE.Raycaster>(null!);
-  const alien1Ref = useRef<THREE.Mesh>(null!);
-  const alien2Ref = useRef<THREE.Mesh>(null!);
+  const alienRefs = useRef<THREE.Mesh[]>([]);
   const upVector = useMemo(() => new THREE.Vector3(0, 1, 0), []);
   const getKeys = useKeyboardControls()[1];
 
@@ -52,17 +53,59 @@ const Armada = ({
 
   const fire = (position: THREE.Vector3) => {
     rayRef.current?.ray.origin.set(position?.x, position?.y, position?.z);
-    const results = rayRef.current?.intersectObjects(
-      [alien1Ref.current, alien2Ref.current],
-      false
-    );
+    const results = rayRef.current?.intersectObjects(alienRefs.current, false);
     if (results?.length) {
-      results.forEach((result) => {
-        result.object.parent?.traverseVisible(
-          (visable) => (visable.visible = false)
-        );
-      });
+      console.log(results);
+      results[0].object.parent?.traverseVisible(
+        (visable) => (visable.visible = false)
+      );
+      // results.forEach((result) => {
+      //   result.object.parent?.traverseVisible(
+      //     (visable) => (visable.visible = false)
+      //   );
+      // });
     }
+  };
+
+  const getMesh = (index: number) => {
+    if (index < 11) {
+      return <Dennis />;
+    } else if (index < 22) {
+      return <Napoleon />;
+    } else if (index < 33) {
+      return <Jimmy />;
+    } else {
+      return <Bruce />;
+    }
+  };
+
+  const getPosition = (index: number): [number, number, number] => {
+    const xPos = (index % 11) * 4;
+    if (index < 11) {
+      return [xPos, 0, 0];
+    } else if (index < 22) {
+      return [xPos, 5, 0];
+    } else if (index < 33) {
+      return [xPos, 10, 0];
+    } else {
+      return [xPos, 15, 0];
+    }
+  };
+
+  const getAliens = () => {
+    return [...Array(44).keys()].map((key) => (
+      <group>
+        <mesh
+          ref={(ref) => (ref ? alienRefs.current.push(ref) : null)}
+          name="alien1"
+          position={getPosition(key)}
+        >
+          <boxGeometry args={[2, 2, 0.5]} />
+          <meshBasicMaterial transparent opacity={0} />
+          {getMesh(key)}
+        </mesh>
+      </group>
+    ));
   };
 
   return (
@@ -71,29 +114,8 @@ const Armada = ({
         ref={rayRef}
         ray={new THREE.Ray(new THREE.Vector3(0, 0, 0), upVector)}
       />
-
       <group {...props} dispose={null} ref={groupRef} position={[0, 12, 0]}>
-        <group>
-          <mesh ref={alien1Ref} name="alien1">
-            <boxGeometry args={[3, 3, 0.5]} />
-            <meshBasicMaterial transparent opacity={0} />
-            <Dennis />
-          </mesh>
-        </group>
-        <group>
-          <mesh ref={alien1Ref} position={[10, 0, 0]} name="alien2">
-            <boxGeometry args={[3, 3, 0.5]} />
-            <meshBasicMaterial transparent opacity={0} />
-            <Dennis />
-          </mesh>
-        </group>
-        <group>
-          <mesh ref={alien2Ref} position={[5, -5, 0]} name="alien3">
-            <boxGeometry args={[3, 3, 0.5]} />
-            <meshBasicMaterial transparent opacity={0} />
-            <Napoleon />
-          </mesh>
-        </group>
+        {getAliens()}
       </group>
     </>
   );

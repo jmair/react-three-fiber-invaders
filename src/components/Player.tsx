@@ -20,7 +20,7 @@ interface PlayerProps {
 }
 
 const Player = (
-  { speed = 10, ...props }: JSX.IntrinsicElements["group"] & PlayerProps,
+  { speed = 30, ...props }: JSX.IntrinsicElements["group"] & PlayerProps,
   ref: any
 ) => {
   const leftTranslation = useMemo(() => new THREE.Vector3(), []);
@@ -52,7 +52,7 @@ const Player = (
 
   return (
     <RigidBody gravityScale={0} ref={ref} type="kinematicPosition">
-      <group {...props} dispose={null}>
+      <group {...props} dispose={null} position={[0, -20, 0]}>
         <Line
           points={[
             [0, 0, 0],

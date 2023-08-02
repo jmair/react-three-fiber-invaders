@@ -7,6 +7,14 @@ import { KeyboardControls } from "@react-three/drei";
 import { Physics } from "@react-three/rapier";
 import * as THREE from "three";
 import { Perf } from "r3f-perf";
+import { useMemo } from "react";
+import {
+  Bloom,
+  EffectComposer,
+  Scanline,
+  Vignette,
+} from "@react-three/postprocessing";
+import { BlendFunction } from "postprocessing";
 
 export default function App(props: any) {
   return (
@@ -20,16 +28,29 @@ export default function App(props: any) {
       >
         <Canvas
           camera={{
-            position: [0, 10, -20],
+            position: [0, 0, -40],
           }}
         >
-          <Perf />
-          {/* <Environment files="/images/nebula.hdr" background /> */}
-          <ambientLight args={["white", 1]} />
-          {/* <CameraRig /> */}
-          <Physics debug>
-            <Game />
-          </Physics>
+          <EffectComposer>
+            <Vignette eskil={false} offset={0.1} darkness={1.1} />
+            <Scanline
+              density={1.443}
+              opacity={0.4}
+              blendFunction={BlendFunction.MULTIPLY}
+            />
+            <Bloom
+              luminanceThreshold={0.3}
+              luminanceSmoothing={0.2}
+              height={300}
+            />
+            <Perf />
+            {/* <Environment files="/images/nebula.hdr" background /> */}
+            <ambientLight args={["white", 1]} />
+            {/* <CameraRig /> */}
+            <Physics debug>
+              <Game />
+            </Physics>
+          </EffectComposer>
         </Canvas>
       </KeyboardControls>
     </>
