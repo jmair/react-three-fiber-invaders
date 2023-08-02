@@ -23,8 +23,8 @@ const Player = (
   { speed = 30, ...props }: JSX.IntrinsicElements["group"] & PlayerProps,
   ref: any
 ) => {
-  const leftTranslation = useMemo(() => new THREE.Vector3(), []);
-  const rightTranslation = useMemo(() => new THREE.Vector3(), []);
+  const leftTranslation = useMemo(() => new THREE.Vector3(0, -20, 0), []);
+  const rightTranslation = useMemo(() => new THREE.Vector3(0, -20, 0), []);
   const getKeys = useKeyboardControls()[1];
   const { nodes, materials } = useGLTF(
     "/models/Johnny-transformed.glb"
@@ -51,15 +51,20 @@ const Player = (
   });
 
   return (
-    <RigidBody gravityScale={0} ref={ref} type="kinematicPosition">
-      <group {...props} dispose={null} position={[0, -20, 0]}>
-        <Line
+    <RigidBody
+      gravityScale={0}
+      ref={ref}
+      type="kinematicPosition"
+      position={[0, -20, 0]}
+    >
+      <group {...props} dispose={null}>
+        {/* <Line
           points={[
             [0, 0, 0],
             [0, 20, 0],
           ]}
           color="limeGreen"
-        />
+        /> */}
         <mesh
           geometry={nodes.Johnny.geometry}
           material={materials.PaletteMaterial001}

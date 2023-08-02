@@ -43,7 +43,7 @@ export default function App(props: any) {
               luminanceSmoothing={0.2}
               height={300}
             />
-            <Perf />
+            {/* <Perf /> */}
             {/* <Environment files="/images/nebula.hdr" background /> */}
             <ambientLight args={["white", 1]} />
             {/* <CameraRig /> */}
