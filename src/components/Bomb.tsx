@@ -2,31 +2,30 @@ import * as THREE from "three";
 import { useFrame } from "@react-three/fiber";
 import { useEffect, useRef } from "react";
 
-interface LaserProps {
-  laserRefs: any;
+interface BombProps {
+  bombRefs: any;
 }
 
-const Laser = ({
-  laserRefs,
+const Bomb = ({
+  bombRefs,
   ...props
-}: JSX.IntrinsicElements["mesh"] & LaserProps) => {
-  const speed = 16;
-  const maxYPosition = 40;
+}: JSX.IntrinsicElements["mesh"] & BombProps) => {
+  const speed = 8;
+  const maxYPosition = -20;
   const ref = useRef<THREE.Mesh>(null);
   const materialRef = useRef<THREE.MeshStandardMaterial>(null);
 
   useEffect(() => {
-    laserRefs.current.push(ref.current);
-  }, [laserRefs]);
+    bombRefs.current.push(ref.current);
+  }, [bombRefs]);
 
   useFrame((state, delta) => {
     if (ref.current) {
-      if (ref.current.position.y > maxYPosition) {
-        ref.current.position.y = -20;
+      if (ref.current.position.y < maxYPosition) {
         ref.current.visible = false;
       }
       if (ref.current.visible) {
-        ref.current.position.y += delta * speed;
+        ref.current.position.y -= delta * speed;
       }
     }
   });
@@ -36,8 +35,8 @@ const Laser = ({
       <boxGeometry args={[0.15, 1.5, 0.15]} />
       <meshStandardMaterial
         ref={materialRef}
-        color="cyan"
-        emissive="cyan"
+        color="tomato"
+        emissive="tomato"
         transparent
         opacity={1}
       />
@@ -45,4 +44,4 @@ const Laser = ({
   );
 };
 
-export default Laser;
+export default Bomb;

@@ -4,7 +4,6 @@ import { useGLTF, Line } from "@react-three/drei";
 import { GLTF } from "three-stdlib";
 import { useKeyboardControls } from "@react-three/drei";
 import { useFrame } from "@react-three/fiber";
-import { RigidBody } from "@react-three/rapier";
 
 type GLTFResult = GLTF & {
   nodes: {
@@ -23,8 +22,6 @@ const Player = (
   { speed = 30, ...props }: JSX.IntrinsicElements["group"] & PlayerProps,
   ref: any
 ) => {
-  const leftTranslation = useMemo(() => new THREE.Vector3(0, -20, 0), []);
-  const rightTranslation = useMemo(() => new THREE.Vector3(0, -20, 0), []);
   const getKeys = useKeyboardControls()[1];
   const { nodes, materials } = useGLTF(
     "/models/Johnny-transformed.glb"
@@ -35,43 +32,23 @@ const Player = (
     const current = ref.current;
 
     if (current) {
-      const translationX = current.translation().x;
-      const amount = leftTranslation.setX(translationX + delta * speed);
-      const negativeAmount = rightTranslation.setX(
-        translationX + delta * speed * -1
-      );
-
       if (left) {
-        current.setNextKinematicTranslation(amount);
+        current.position.x += delta * speed;
       }
       if (right) {
-        current.setNextKinematicTranslation(negativeAmount);
+        current.position.x += delta * -speed;
       }
     }
   });
 
   return (
-    <RigidBody
-      gravityScale={0}
-      ref={ref}
-      type="kinematicPosition"
-      position={[0, -20, 0]}
-    >
-      <group {...props} dispose={null}>
-        {/* <Line
-          points={[
-            [0, 0, 0],
-            [0, 20, 0],
-          ]}
-          color="limeGreen"
-        /> */}
-        <mesh
-          geometry={nodes.Johnny.geometry}
-          material={materials.PaletteMaterial001}
-          scale={[1, 1, 2.5]}
-        />
-      </group>
-    </RigidBody>
+    <group {...props} dispose={null} position={[0, -20, 0]} ref={ref}>
+      <mesh
+        geometry={nodes.Johnny.geometry}
+        material={materials.PaletteMaterial001}
+        scale={[1, 1, 2.5]}
+      />
+    </group>
   );
 };
 

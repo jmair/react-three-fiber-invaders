@@ -1,93 +1,117 @@
 import * as THREE from "three";
-import React, { useMemo, useRef, useState } from "react";
-import { useFrame } from "@react-three/fiber";
-import { useKeyboardControls } from "@react-three/drei";
+import React, { useCallback, useMemo, useRef, useState } from "react";
+import { useFrame, RootState } from "@react-three/fiber";
 import Napoleon from "./Napoleon";
 import Dennis from "./Dennis";
 import Jimmy from "./Jimmy";
 import Bruce from "./Bruce";
-import Laser from "./Laser";
-
 interface ArmadaProps {
   playerRef: any;
+  laserRefs: any;
+  dropBomb: (p: THREE.Vector3) => void;
 }
 
 const Armada = ({
   playerRef,
+  laserRefs,
+  dropBomb,
   ...props
 }: JSX.IntrinsicElements["group"] & ArmadaProps) => {
   const width = 40;
+  const craftRadius = 1.96;
   const shipCount = 44;
+  const rowCount = 4;
+  const perRow = shipCount / rowCount;
   const startY = 12;
+  const horizontalSpacing = 5;
+  const verticalSpacing = 5;
+  const initalApproach = useMemo(
+    () => new THREE.Vector3(-width / 2, startY, 0),
+    []
+  );
   const xStride = 15;
   const xVelocity = 2;
   const yVelocity = -5;
+  const yTravelLimit = -15;
   const elapsedThreshold = 0.5;
+  const dropBombThreshold = 1;
 
   const [speed, setSpeed] = useState(2);
   const [sinceLastUpdate, setSinceLastUpdate] = useState(0);
   const [yUpdate, setYUpdate] = useState(false);
-  const [laserKey, setLaserKey] = useState(0);
-  const [laserDimensions, setLaserDimensions] = useState<
-    [number, number, number]
-  >([0, 0, 0]);
-  const [laserPosition, setLaserPosition] = useState<[number, number, number]>([
-    0, 0, 0,
-  ]);
-
-  const firingPosition = useMemo(() => new THREE.Vector3(), []);
+  const [lastBombDropped, setLastBombDropped] = useState(0);
+  const shipWorldPositionReset = useMemo(() => new THREE.Vector3(), []);
+  const shipWorldPositionDamage = useMemo(() => new THREE.Vector3(), []);
+  const shipWorldPositionAttack = useMemo(() => new THREE.Vector3(), []);
   const groupRef = useRef<THREE.Group>(null!);
-  const rayRef = useRef<THREE.Raycaster>(null!);
-  const alienRefs = useRef<THREE.Mesh[]>([]);
-  const upVector = useMemo(() => new THREE.Vector3(0, 1, 0), []);
-  const getKeys = useKeyboardControls()[1];
-  const getMesh = (index: number) => {
-    if (index < 11) {
-      return <Dennis />;
-    } else if (index < 22) {
-      return <Napoleon />;
-    } else if (index < 33) {
-      return <Jimmy />;
-    } else {
-      return <Bruce />;
-    }
-  };
-  const getPosition = (index: number): [number, number, number] => {
-    const xPos = (index % 11) * 4;
-    if (index < 11) {
-      return [xPos, 0, 0];
-    } else if (index < 22) {
-      return [xPos, 5, 0];
-    } else if (index < 33) {
-      return [xPos, 10, 0];
-    } else {
-      return [xPos, 15, 0];
-    }
-  };
-  const alienArray = useMemo(
-    () =>
-      [...Array(shipCount).keys()].map((key) => (
-        <group key={key}>
-          <mesh
-            ref={(ref) => (ref ? alienRefs.current.push(ref) : null)}
-            name="alien1"
-            position={getPosition(key)}
-          >
-            <boxGeometry args={[2.75, 2.75, 0.5]} />
-            <meshBasicMaterial transparent opacity={0} />
-            {getMesh(key)}
-          </mesh>
-        </group>
-      )),
-    []
+  const fleetRefs = useRef<THREE.Mesh[]>([]);
+  const getMesh = useCallback(
+    (index: number) => {
+      if (index < perRow * 1) {
+        return <Dennis />;
+      } else if (index < perRow * 2) {
+        return <Napoleon />;
+      } else if (index < perRow * 3) {
+        return <Jimmy />;
+      } else {
+        return <Bruce />;
+      }
+    },
+    [perRow]
   );
+  const getPosition = useCallback(
+    (index: number): [number, number, number] => {
+      const xPos = (index % perRow) * horizontalSpacing;
+      if (index < perRow) {
+        return [xPos, 0, 0];
+      } else if (index < perRow * 2) {
+        return [xPos, verticalSpacing * 1, 0];
+      } else if (index < perRow * 3) {
+        return [xPos, verticalSpacing * 2, 0];
+      } else {
+        return [xPos, verticalSpacing * 3, 0];
+      }
+    },
+    [perRow]
+  );
+  const fleetArray = useMemo(() => {
+    return [...Array(shipCount).keys()].map((key) => (
+      <group key={key}>
+        <mesh
+          ref={(ref) => (ref ? fleetRefs.current.push(ref) : null)}
+          position={getPosition(key)}
+        >
+          <boxGeometry args={[2.75, 2.75, 0.5]} />
+          <meshBasicMaterial transparent opacity={0} />
+          {getMesh(key)}
+        </mesh>
+      </group>
+    ));
+  }, [getMesh, getPosition]);
 
-  useFrame((state, delta) => {
-    const { space } = getKeys();
+  const resetGroup = () => {
+    groupRef.current.position.max(initalApproach);
+  };
 
+  const checkForDestruction = (activeCraft: THREE.Mesh[]) => {
+    const activeLasers = laserRefs.current.filter(
+      (laser: THREE.Mesh) => laser.visible
+    );
+
+    activeCraft.forEach((craft) => {
+      craft.getWorldPosition(shipWorldPositionDamage);
+      activeLasers.forEach((laser: THREE.Mesh) => {
+        if (shipWorldPositionDamage.distanceTo(laser.position) < craftRadius) {
+          craft.visible = false;
+          laser.visible = false;
+        }
+      });
+    });
+  };
+
+  const advance = (state: RootState) => {
     if (groupRef.current?.position) {
       const currPosition = groupRef.current.position;
-
       if (currPosition.x > xStride) {
         setSpeed(-xVelocity);
         setYUpdate(true);
@@ -106,63 +130,56 @@ const Armada = ({
         currPosition.x += speed;
       }
     }
-
-    if (space) {
-      const playerPosition = playerRef.current.translation();
-      firingPosition.set(playerPosition.x, playerPosition.y, playerPosition.z);
-
-      fire(firingPosition);
-    }
-  });
-
-  const fire = (playerPos: THREE.Vector3) => {
-    rayRef.current?.ray.origin.set(playerPos.x, playerPos.y, playerPos.z);
-
-    const results = rayRef.current?.intersectObjects(alienRefs.current, false);
-
-    if (results?.length) {
-      const distance = results[0].distance;
-
-      setLaserDimensions([0.1, distance, 0.1]);
-      setLaserPosition([
-        playerPos.x,
-        laserDimensions[1] / 2 + playerPos.y,
-        playerPos.z,
-      ]);
-
-      results[0].object.parent?.parent?.remove(results[0].object.parent);
-    } else {
-      setLaserDimensions([0.1, 100, 0.1]);
-      setLaserPosition([
-        playerPos.x,
-        laserDimensions[1] / 2 + playerPos.y,
-        playerPos.z,
-      ]);
-    }
-
-    setLaserKey(laserKey + 1);
   };
 
+  const attack = (state: RootState, activeCraft: THREE.Mesh[]) => {
+    const activeCraftYSorted = activeCraft.sort(
+      (a, b) => a.position.y - b.position.y
+    );
+
+    const elapsedTime = state.clock.elapsedTime;
+
+    if (
+      activeCraftYSorted.length > 0 &&
+      elapsedTime - lastBombDropped > dropBombThreshold
+    ) {
+      const ship =
+        activeCraftYSorted[
+          Math.min(
+            Math.round(Math.random() * (shipCount / rowCount)),
+            activeCraftYSorted.length - 1
+          )
+        ];
+
+      ship.getWorldPosition(shipWorldPositionAttack);
+      dropBomb(shipWorldPositionAttack);
+      setLastBombDropped(elapsedTime);
+    }
+  };
+
+  const checkForPlanetObliteration = () => {
+    fleetRefs.current.forEach((craft) => {
+      if (craft.visible) {
+        craft.getWorldPosition(shipWorldPositionReset);
+        if (shipWorldPositionReset.y < yTravelLimit) {
+          resetGroup();
+        }
+      }
+    });
+  };
+
+  useFrame((state, delta) => {
+    const activeCraft = fleetRefs.current.filter((craft) => craft.visible);
+    advance(state);
+    checkForDestruction(activeCraft);
+    attack(state, activeCraft);
+    checkForPlanetObliteration();
+  });
+
   return (
-    <>
-      <raycaster
-        ref={rayRef}
-        ray={new THREE.Ray(new THREE.Vector3(0, -20, 0), upVector)}
-      />
-      <Laser
-        dimensions={laserDimensions}
-        key={laserKey}
-        position={laserPosition}
-      />
-      <group
-        {...props}
-        dispose={null}
-        ref={groupRef}
-        position={[-width / 2, startY, 0]}
-      >
-        {alienArray}
-      </group>
-    </>
+    <group {...props} dispose={null} ref={groupRef} position={initalApproach}>
+      {fleetArray}
+    </group>
   );
 };
 
