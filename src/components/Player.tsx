@@ -1,9 +1,10 @@
 import * as THREE from "three";
-import React, { useMemo, forwardRef } from "react";
+import React, { useMemo, forwardRef, useContext } from "react";
 import { useGLTF, Line } from "@react-three/drei";
 import { GLTF } from "three-stdlib";
 import { useKeyboardControls } from "@react-three/drei";
 import { useFrame } from "@react-three/fiber";
+import { PlayerContext } from "./Game";
 
 type GLTFResult = GLTF & {
   nodes: {
@@ -23,6 +24,7 @@ const Player = (
   ref: any
 ) => {
   const getKeys = useKeyboardControls()[1];
+  const { hero } = useContext(PlayerContext);
   const { nodes, materials } = useGLTF(
     "/models/Johnny-transformed.glb"
   ) as GLTFResult;
@@ -32,11 +34,19 @@ const Player = (
     const current = ref.current;
 
     if (current) {
-      if (left) {
-        current.position.x += delta * speed;
-      }
-      if (right) {
-        current.position.x += delta * -speed;
+      if (!hero.isDead) {
+        if (!current.visible) {
+          current.visible = true;
+        }
+
+        if (left) {
+          current.position.x += delta * -speed;
+        }
+        if (right) {
+          current.position.x += delta * speed;
+        }
+      } else {
+        current.visible = false;
       }
     }
   });

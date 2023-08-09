@@ -1,10 +1,17 @@
 import * as THREE from "three";
-import React, { useCallback, useMemo, useRef, useState } from "react";
+import React, {
+  useCallback,
+  useContext,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { useFrame, RootState } from "@react-three/fiber";
 import Napoleon from "./Napoleon";
 import Dennis from "./Dennis";
 import Jimmy from "./Jimmy";
 import Bruce from "./Bruce";
+import { PlayerContext } from "./Game";
 interface ArmadaProps {
   playerRef: any;
   laserRefs: any;
@@ -36,6 +43,7 @@ const Armada = ({
   const elapsedThreshold = 0.5;
   const dropBombThreshold = 1;
 
+  const { hero, setHero } = useContext(PlayerContext);
   const [speed, setSpeed] = useState(2);
   const [sinceLastUpdate, setSinceLastUpdate] = useState(0);
   const [yUpdate, setYUpdate] = useState(false);
@@ -104,6 +112,10 @@ const Armada = ({
         if (shipWorldPositionDamage.distanceTo(laser.position) < craftRadius) {
           craft.visible = false;
           laser.visible = false;
+          setHero({
+            ...hero,
+            score: hero.score != null ? hero.score + 100 : 0,
+          });
         }
       });
     });
@@ -169,11 +181,14 @@ const Armada = ({
   };
 
   useFrame((state, delta) => {
-    const activeCraft = fleetRefs.current.filter((craft) => craft.visible);
-    advance(state);
-    checkForDestruction(activeCraft);
-    attack(state, activeCraft);
-    checkForPlanetObliteration();
+    if (!hero.isDead) {
+      const activeCraft = fleetRefs.current.filter((craft) => craft.visible);
+
+      advance(state);
+      checkForDestruction(activeCraft);
+      attack(state, activeCraft);
+      checkForPlanetObliteration();
+    }
   });
 
   return (

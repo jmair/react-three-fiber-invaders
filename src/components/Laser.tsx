@@ -1,6 +1,7 @@
 import * as THREE from "three";
 import { useFrame } from "@react-three/fiber";
-import { useEffect, useRef } from "react";
+import { useContext, useEffect, useRef } from "react";
+import { PlayerContext } from "./Game";
 
 interface LaserProps {
   laserRefs: any;
@@ -14,15 +15,15 @@ const Laser = ({
   const maxYPosition = 40;
   const ref = useRef<THREE.Mesh>(null);
   const materialRef = useRef<THREE.MeshStandardMaterial>(null);
-
+  const { hero } = useContext(PlayerContext);
   useEffect(() => {
     laserRefs.current.push(ref.current);
   }, [laserRefs]);
 
   useFrame((state, delta) => {
-    if (ref.current) {
+    if (!hero.isDead && ref.current) {
       if (ref.current.position.y > maxYPosition) {
-        ref.current.position.y = -20;
+        ref.current.position.y = -15;
         ref.current.visible = false;
       }
       if (ref.current.visible) {

@@ -1,6 +1,7 @@
 import * as THREE from "three";
 import { useFrame } from "@react-three/fiber";
-import { useEffect, useRef } from "react";
+import { useContext, useEffect, useRef } from "react";
+import { PlayerContext } from "./Game";
 
 interface BombProps {
   bombRefs: any;
@@ -10,6 +11,7 @@ const Bomb = ({
   bombRefs,
   ...props
 }: JSX.IntrinsicElements["mesh"] & BombProps) => {
+  const { hero } = useContext(PlayerContext);
   const speed = 8;
   const maxYPosition = -20;
   const ref = useRef<THREE.Mesh>(null);
@@ -20,7 +22,7 @@ const Bomb = ({
   }, [bombRefs]);
 
   useFrame((state, delta) => {
-    if (ref.current) {
+    if (!hero.isDead && ref.current) {
       if (ref.current.position.y < maxYPosition) {
         ref.current.visible = false;
       }

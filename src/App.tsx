@@ -28,23 +28,24 @@ export default function App(props: any) {
       >
         <Canvas
           camera={{
-            position: [0, 0, -40],
+            position: [0, 0, 40],
           }}
         >
           <EffectComposer>
-            <Vignette eskil={false} offset={0.1} darkness={1.1} />
+            {/* <Vignette eskil={false} offset={0.1} darkness={1.1} /> */}
             <Scanline
               density={1.443}
               opacity={0.4}
               blendFunction={BlendFunction.MULTIPLY}
             />
             <Bloom
-              luminanceThreshold={0.3}
+              blendFunction={BlendFunction.SCREEN}
+              luminanceThreshold={0.8}
               luminanceSmoothing={0.2}
               height={300}
             />
             {/* <Perf /> */}
-            {/* <Environment files="/images/nebula.hdr" background /> */}
+            <Environment files="/images/nebula.hdr" background />
             <ambientLight args={["white", 1]} />
             {/* <CameraRig /> */}
             <Physics debug>
