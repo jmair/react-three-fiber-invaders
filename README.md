@@ -1,1 +1,3 @@
-# React Invaders
+# React Three Fiber Invaders
+
+`npm start`
