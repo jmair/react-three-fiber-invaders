@@ -5,6 +5,7 @@ import { GLTF } from "three-stdlib";
 import { useKeyboardControls } from "@react-three/drei";
 import { useFrame } from "@react-three/fiber";
 import { PlayerContext } from "./Game";
+import Johnny from "./Johnny";
 
 type GLTFResult = GLTF & {
   nodes: {
@@ -34,7 +35,7 @@ const Player = (
     const current = ref.current;
 
     if (current) {
-      if (!hero.isDead) {
+      if (!hero.destroyed) {
         if (!current.visible) {
           current.visible = true;
         }
@@ -53,11 +54,7 @@ const Player = (
 
   return (
     <group {...props} dispose={null} position={[0, -20, 0]} ref={ref}>
-      <mesh
-        geometry={nodes.Johnny.geometry}
-        material={materials.PaletteMaterial001}
-        scale={[1, 1, 2.5]}
-      />
+      <Johnny />
     </group>
   );
 };

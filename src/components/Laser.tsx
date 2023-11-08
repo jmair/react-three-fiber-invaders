@@ -21,7 +21,7 @@ const Laser = ({
   }, [laserRefs]);
 
   useFrame((state, delta) => {
-    if (!hero.isDead && ref.current) {
+    if (!hero.destroyed && ref.current) {
       if (ref.current.position.y > maxYPosition) {
         ref.current.position.y = -15;
         ref.current.visible = false;

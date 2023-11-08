@@ -25,6 +25,7 @@ const Armada = ({
   ...props
 }: JSX.IntrinsicElements["group"] & ArmadaProps) => {
   const width = 40;
+  const craftDestructionPoints = 100;
   const craftRadius = 1.96;
   const shipCount = 44;
   const rowCount = 4;
@@ -47,7 +48,7 @@ const Armada = ({
   const [speed, setSpeed] = useState(2);
   const [sinceLastUpdate, setSinceLastUpdate] = useState(0);
   const [yUpdate, setYUpdate] = useState(false);
-  const [lastBombDropped, setLastBombDropped] = useState(0);
+  const [lastBombDroppedAt, setLastBombDroppedAt] = useState(0);
   const shipWorldPositionReset = useMemo(() => new THREE.Vector3(), []);
   const shipWorldPositionDamage = useMemo(() => new THREE.Vector3(), []);
   const shipWorldPositionAttack = useMemo(() => new THREE.Vector3(), []);
@@ -114,7 +115,7 @@ const Armada = ({
           laser.visible = false;
           setHero({
             ...hero,
-            score: hero.score != null ? hero.score + 100 : 0,
+            score: hero.score != null ? hero.score + craftDestructionPoints : 0,
           });
         }
       });
@@ -153,7 +154,7 @@ const Armada = ({
 
     if (
       activeCraftYSorted.length > 0 &&
-      elapsedTime - lastBombDropped > dropBombThreshold
+      elapsedTime - lastBombDroppedAt > dropBombThreshold
     ) {
       const ship =
         activeCraftYSorted[
@@ -165,7 +166,7 @@ const Armada = ({
 
       ship.getWorldPosition(shipWorldPositionAttack);
       dropBomb(shipWorldPositionAttack);
-      setLastBombDropped(elapsedTime);
+      setLastBombDroppedAt(elapsedTime);
     }
   };
 
@@ -181,7 +182,7 @@ const Armada = ({
   };
 
   useFrame((state, delta) => {
-    if (!hero.isDead) {
+    if (!hero.destroyed) {
       const activeCraft = fleetRefs.current.filter((craft) => craft.visible);
 
       advance(state);

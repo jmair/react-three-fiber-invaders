@@ -22,7 +22,7 @@ const Bomb = ({
   }, [bombRefs]);
 
   useFrame((state, delta) => {
-    if (!hero.isDead && ref.current) {
+    if (!hero.destroyed && ref.current) {
       if (ref.current.position.y < maxYPosition) {
         ref.current.visible = false;
       }
