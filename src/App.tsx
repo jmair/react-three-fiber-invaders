@@ -48,7 +48,7 @@ export default function App(props: any) {
             <Environment files="/images/nebula.hdr" background />
             <ambientLight args={["white", 1]} />
             {/* <CameraRig /> */}
-            <Physics debug>
+            <Physics>
               <Game />
             </Physics>
           </EffectComposer>
