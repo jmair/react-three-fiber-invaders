@@ -1,28 +1,21 @@
-import { Environment, Html } from "@react-three/drei";
+import { Environment } from "@react-three/drei";
 import { Canvas } from "@react-three/fiber";
 import "./App.css";
 import Game from "./components/Game";
-import CameraRig from "./components/CameraRig";
+// import CameraRig from "./components/CameraRig";
 import { KeyboardControls } from "@react-three/drei";
 import { Physics } from "@react-three/rapier";
-import * as THREE from "three";
-import { Perf } from "r3f-perf";
-import { ReactNode, Suspense, useMemo } from "react";
+// import * as THREE from "three";
+// import { Perf } from "r3f-perf";
+import { Suspense } from "react";
+import Fallback from "./components/Fallback";
 import {
   Bloom,
   EffectComposer,
   Scanline,
-  Vignette,
+  // Vignette,
 } from "@react-three/postprocessing";
 import { BlendFunction } from "postprocessing";
-
-const Fallback = () => {
-  return (
-    <Html>
-      <div style={{ color: "white", fontSize: "32px" }}>Loading...</div>
-    </Html>
-  );
-};
 
 export default function App(props: any) {
   return (
