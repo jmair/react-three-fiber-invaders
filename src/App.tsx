@@ -1,4 +1,4 @@
-import { Environment } from "@react-three/drei";
+import { Environment, Html } from "@react-three/drei";
 import { Canvas } from "@react-three/fiber";
 import "./App.css";
 import Game from "./components/Game";
@@ -7,7 +7,7 @@ import { KeyboardControls } from "@react-three/drei";
 import { Physics } from "@react-three/rapier";
 import * as THREE from "three";
 import { Perf } from "r3f-perf";
-import { useMemo } from "react";
+import { ReactNode, Suspense, useMemo } from "react";
 import {
   Bloom,
   EffectComposer,
@@ -15,6 +15,14 @@ import {
   Vignette,
 } from "@react-three/postprocessing";
 import { BlendFunction } from "postprocessing";
+
+const Fallback = () => {
+  return (
+    <Html>
+      <div style={{ color: "white", fontSize: "32px" }}>Loading...</div>
+    </Html>
+  );
+};
 
 export default function App(props: any) {
   return (
@@ -31,27 +39,29 @@ export default function App(props: any) {
             position: [0, 0, 40],
           }}
         >
-          <EffectComposer>
-            {/* <Vignette eskil={false} offset={0.1} darkness={1.1} /> */}
-            <Scanline
-              density={1.443}
-              opacity={0.4}
-              blendFunction={BlendFunction.MULTIPLY}
-            />
-            <Bloom
-              blendFunction={BlendFunction.SCREEN}
-              luminanceThreshold={0.8}
-              luminanceSmoothing={0.2}
-              height={300}
-            />
-            {/* <Perf /> */}
-            <Environment files="/images/nebula.hdr" background />
-            <ambientLight args={["white", 1]} />
-            {/* <CameraRig /> */}
-            <Physics>
-              <Game />
-            </Physics>
-          </EffectComposer>
+          <Suspense fallback={<Fallback />}>
+            <EffectComposer>
+              {/* <Vignette eskil={false} offset={0.1} darkness={1.1} /> */}
+              <Scanline
+                density={1.443}
+                opacity={0.4}
+                blendFunction={BlendFunction.MULTIPLY}
+              />
+              <Bloom
+                blendFunction={BlendFunction.SCREEN}
+                luminanceThreshold={0.8}
+                luminanceSmoothing={0.2}
+                height={300}
+              />
+              {/* <Perf /> */}
+              <Environment files="/images/nebula.hdr" background />
+              <ambientLight args={["white", 1]} />
+              {/* <CameraRig /> */}
+              <Physics>
+                <Game />
+              </Physics>
+            </EffectComposer>
+          </Suspense>
         </Canvas>
       </KeyboardControls>
     </>
